@@ -27,3 +27,10 @@ CONFIG_SCHEMA = (
     .extend(cv.COMPONENT_SCHEMA)
     .extend(i2c.i2c_device_schema(None))
 )
+
+async def to_code(config):
+    var = cg.new_Pvariable(config[CONF_ID])
+    await cg.register_component(var, config)
+    await i2c.register_i2c_device(var, config)
+
+    cg.add(var.set_continuous_mode(config[CONF_CONTINUOUS_MODE]))
