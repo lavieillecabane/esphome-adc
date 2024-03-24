@@ -32,14 +32,6 @@ void MAX17048Component::setup() {
     return;
   }
   ESP_LOGD(TAG, "    CHIPID_REG: %u", value);
-  //ESP_LOGCONFIG(TAG, "    CHIPID_REG: %u", value);
-  /*
-  if (!this->read_byte_16(max17048_REGISTER_CONVERSION, &value)) {
-    this->mark_failed();
-    return;
-  }
-  */
-  ESP_LOGCONFIG(TAG, "Configuring max17048...");
 
   uint16_t config = 0;
 
@@ -58,9 +50,7 @@ void MAX17048Component::dump_config() {
 
   for (auto *sensor : this->sensors_) {
     LOG_SENSOR("  ", "Sensor", sensor);
-    //ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
-    //ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
   }
 }
 float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
@@ -72,38 +62,14 @@ float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
   config |= (sensor->get_gain() & 0b111) << 9;
 
   if (!this->continuous_mode_ || this->prev_config_ != config) {
-    /*
-    if (!this->write_byte_16(max17048_REGISTER_CONFIG, config)) {
-      this->status_set_warning();
-      return NAN;
-    }
-    */
     this->prev_config_ = config;
 
     // about 1.2 ms with 860 samples per second
     delay(2);
-
-    // in continuous mode, conversion will always be running, rely on the delay
-    // to ensure conversion is taking place with the correct settings
-    // can we use the rdy pin to trigger when a conversion is done?
-    /*
-    if (!this->continuous_mode_) {
-      uint32_t start = millis();
-      while (this->read_byte_16(max17048_REGISTER_CONFIG, &config) && (config >> 15) == 0) {
-        if (millis() - start > 100) {
-          ESP_LOGW(TAG, "Reading max17048 timed out");
-          this->status_set_warning();
-          return NAN;
-        }
-        yield();
-      }
-    }
-    */
   }
   
   // Get battery voltage (MAX1704X_VCELL_REG)
   uint16_t raw_conversion_vcell;
-  //if (!this->read_byte_16(MAX17048_VCELL, &raw_conversion_vcell)) {
   if (!this->read_byte_16(MAX1704X_VCELL_REG, &raw_conversion_vcell)) {
     this->status_set_warning();
     return NAN;
@@ -111,10 +77,8 @@ float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
   // [D][max17048:123]:     VCELL_REG: 50720
   ESP_LOGD(TAG, "    VCELL_REG: %u", raw_conversion_vcell);
     
-  auto signed_conversion_vcell = static_cast<int16_t>(raw_conversion_vcell);
-  float voltage = (signed_conversion_vcell)* 78.125 / 1000000;  // Floating point value read in Volts
-  //float voltage = 3.75;
-  ESP_LOGD(TAG, "    float voltage: %.3f V", voltage);
+  float voltage = (float)raw_conversion_vcell* 78.125 / 1000000;  // Floating point value read in Volts
+    ESP_LOGD(TAG, "    float voltage: %.3f V", voltage);
   
   
   // Get battery state in percent (0-100%)
@@ -131,9 +95,10 @@ float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
   float percent = (signed_conversion_soc)/ 256.0;
   
   // [D][max17048:132]:     percent: 71.265625 %
-  ESP_LOGD(TAG, "    percent: %.1f %", percent);
+  ESP_LOGD(TAG, "    percent: %.1f percent", percent);
   
   this->status_clear_warning();
+  //return voltage;
   return voltage;
 }
 
