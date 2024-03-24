@@ -21,6 +21,11 @@ void MAX17048Component::setup() {
   ESP_LOGCONFIG(TAG, "Configuring max17048...");
 
   uint16_t config = 0;
+
+  // Setup Gain
+  //        0bxxxx000xxxxxxxxx
+  config |= MAX17048_GAIN_6P144 << 9;  
+  
   this->prev_config_ = config;
 }
 void MAX17048Component::dump_config() {
@@ -32,26 +37,24 @@ void MAX17048Component::dump_config() {
 
   for (auto *sensor : this->sensors_) {
     LOG_SENSOR("  ", "Sensor", sensor);
-    /*
-    ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
+    //ESP_LOGCONFIG(TAG, "    Multiplexer: %u", sensor->get_multiplexer());
     ESP_LOGCONFIG(TAG, "    Gain: %u", sensor->get_gain());
-    ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
-    */
+    //ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
   }
 }
-float MAX17048Component::request_measurement(max17048Sensor *sensor) {
+float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
   uint16_t config = this->prev_config_;
   /*
   // Multiplexer
   //        0bxBBBxxxxxxxxxxxx
   config &= 0b1000111111111111;
   config |= (sensor->get_multiplexer() & 0b111) << 12;
-
+  */
   // Gain
   //        0bxxxxBBBxxxxxxxxx
   config &= 0b1111000111111111;
   config |= (sensor->get_gain() & 0b111) << 9;
-
+  /*
   if (!this->continuous_mode_) {
     // Start conversion
     config |= 0b1000000000000000;
@@ -95,11 +98,11 @@ float MAX17048Component::request_measurement(max17048Sensor *sensor) {
   millivolts = 3300.0;
 
   this->status_clear_warning();
-  return millivolts ;
+  return millivolts;
 }
 
-float max17048Sensor::sample() { return this->parent_->request_measurement(this); }
-void max17048Sensor::update() {
+float MAX17048Sensor::sample() { return this->parent_->request_measurement(this); }
+void MAX17048Sensor::update() {
   float v = this->parent_->request_measurement(this);
   if (!std::isnan(v)) {
     //ESP_LOGD(TAG, "'%s': Got Voltage=%fV", this->get_name().c_str(), v);
