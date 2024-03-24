@@ -1,10 +1,16 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor, voltage_sampler
+from esphome.components import i2c, sensor, voltage_sampler
 from esphome.const import (
+    CONF_BATTERY_LEVEL,
+    CONF_BATTERY_VOLTAGE,
     CONF_GAIN,
+    DEVICE_CLASS_BATTERY,
+    DEVICE_CLASS_BATTERY_CHARGING,
     DEVICE_CLASS_VOLTAGE,
+    ICON_BATTERY,
     STATE_CLASS_MEASUREMENT,
+    UNIT_PERCENT,
     UNIT_VOLT,
     CONF_ID,
 )
@@ -40,7 +46,8 @@ CONFIG_SCHEMA = (
         MAX17048Sensor,
         unit_of_measurement=UNIT_VOLT,
         accuracy_decimals=3,
-        device_class=DEVICE_CLASS_VOLTAGE,
+        device_class=DEVICE_CLASS_BATTERY, # DEVICE_CLASS_VOLTAGE,
+        icon=ICON_BATTERY,
         state_class=STATE_CLASS_MEASUREMENT,
     )
     .extend(
@@ -50,6 +57,7 @@ CONFIG_SCHEMA = (
         }
     )
     .extend(cv.polling_component_schema("60s"))
+    .extend(i2c.i2c_device_schema(0x36))
 )
 
 async def to_code(config):
