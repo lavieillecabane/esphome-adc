@@ -34,6 +34,16 @@ enum class REG {
     TABLE = 0x40,
     CMD = 0xFE
 };
+
+enum MAX17048Gain {
+  MAX17048_GAIN_6P144 = 0b000,
+  MAX17048_GAIN_4P096 = 0b001,
+  MAX17048_GAIN_2P048 = 0b010,
+  MAX17048_GAIN_1P024 = 0b011,
+  MAX17048_GAIN_0P512 = 0b100,
+  MAX17048_GAIN_0P256 = 0b101,
+};
+
 enum class ALERT
 {
     RI = (1 << 0),  // Reset indicator
@@ -44,23 +54,44 @@ enum class ALERT
     SC = (1 << 5)   // SOC change alert
 };
 
-//class MAX17048Component : public PollingComponent, public i2c::I2CDevice {
-/// Internal holder class that is in instance of Sensor so that the hub can create individual sensors.
-class MAX17048Component : public sensor::Sensor, public PollingComponent, public voltage_sampler::VoltageSampler {
+class MAX17048Sensor;
+
+class MAX17048Component : public Component, public i2c::I2CDevice {
  public:
-  MAX17048Sensor(MAX17048Component *parent) : parent_(parent) {}
+  void register_sensor(MAX17048Sensor *obj) { this->sensors_.push_back(obj); }
+  /// Set up the internal sensor array.
   void setup() override;
   void dump_config() override;
+  /// HARDWARE_LATE setup priority
   float get_setup_priority() const override { return setup_priority::DATA; }
-  void update() override;
-  void set_voltage_sensor(sensor::Sensor *vs) { voltage_sensor_ = vs; }
-  
+  void set_continuous_mode(bool continuous_mode) { continuous_mode_ = continuous_mode; }
+
+  /// Helper method to request a measurement from a sensor.
+  float request_measurement(MAX17048Sensor *sensor);
+
  protected:
-  sensor::Sensor *voltage_sensor_{nullptr};
+  std::vector<MAX17048Sensor *> sensors_;
+  uint16_t prev_config_{0};
+  bool continuous_mode_;
+};
+
+/// Internal holder class that is in instance of Sensor so that the hub can create individual sensors.
+class MAX17048Sensor : public sensor::Sensor, public PollingComponent, public voltage_sampler::VoltageSampler {
+ public:
+  MAX17048Sensor(MAX17048Component *parent) : parent_(parent) {}
+  void update() override;
+  //void set_multiplexer(ADS1115Multiplexer multiplexer) { multiplexer_ = multiplexer; }
+  void set_gain(MAX17048Gain gain) { gain_ = gain; }
+  //void set_resolution(ADS1115Resolution resolution) { resolution_ = resolution; }
+  float sample() override;
+  //uint8_t get_multiplexer() const { return multiplexer_; }
+  uint8_t get_gain() const { return gain_; }
+  //uint8_t get_resolution() const { return resolution_; }
+
+ protected:
   MAX17048Component *parent_;
-  //ADS1115Multiplexer multiplexer_;
-  //ADS1115Gain gain_;
-  //ADS1115Resolution resolution_;
+  MAX17048Gain gain_;
+  
 };
 
 }  // namespace max17048
