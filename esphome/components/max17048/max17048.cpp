@@ -2,6 +2,18 @@
 #include "esphome/core/log.h"
 #include "esphome/core/hal.h"
 
+#define MAX1704X_VCELL_REG 0x02   // Register that holds cell voltage
+#define MAX1704X_SOC_REG 0x04     // Register that holds cell state of charge
+#define MAX1704X_MODE_REG 0x06    // Register that manages mode
+#define MAX1704X_VERSION_REG 0x08 // Register that has IC version
+#define MAX1704X_HIBRT_REG 0x0A   // Register that manages hibernation
+#define MAX1704X_CONFIG_REG 0x0C  // Register that manages configuration
+#define MAX1704X_VALERT_REG 0x14  // Register that holds voltage alert values
+#define MAX1704X_CRATE_REG 0x16   // Register that holds cell charge rate
+#define MAX1704X_VRESET_REG 0x18  // Register that holds reset voltage setting
+#define MAX1704X_CHIPID_REG 0x19  // Register that holds semi-unique chip ID
+#define MAX1704X_STATUS_REG 0x1A  // Register that holds current alert/status
+
 namespace esphome {
 namespace max17048 {
 
@@ -11,7 +23,16 @@ static const char *const TAG = "max17048";
 
 void MAX17048Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up max17048...");
+  
+  uint16_t getICversion(void);
+  uint8_t getChipID(void);
   uint16_t value;
+  if (!this->read_byte_16(MAX1704X_CHIPID_REG, &value)) {
+    this->mark_failed();
+    return;
+  }
+  ESP_LOGD(TAG, "    CHIPID_REG: %u", value);
+  //ESP_LOGCONFIG(TAG, "    CHIPID_REG: %u", value);
   /*
   if (!this->read_byte_16(max17048_REGISTER_CONVERSION, &value)) {
     this->mark_failed();
@@ -44,22 +65,11 @@ void MAX17048Component::dump_config() {
 }
 float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
   uint16_t config = this->prev_config_;
-  /*
-  // Multiplexer
-  //        0bxBBBxxxxxxxxxxxx
-  config &= 0b1000111111111111;
-  config |= (sensor->get_multiplexer() & 0b111) << 12;
-  */
+
   // Gain
   //        0bxxxxBBBxxxxxxxxx
   config &= 0b1111000111111111;
   config |= (sensor->get_gain() & 0b111) << 9;
-  /*
-  if (!this->continuous_mode_) {
-    // Start conversion
-    config |= 0b1000000000000000;
-  }
-  */
 
   if (!this->continuous_mode_ || this->prev_config_ != config) {
     /*
@@ -90,15 +100,41 @@ float MAX17048Component::request_measurement(MAX17048Sensor *sensor) {
     }
     */
   }
-
-  uint16_t raw_conversion;
-  auto signed_conversion = static_cast<int16_t>(raw_conversion);
-
-  float millivolts;
-  millivolts = 3300.0;
-
+  
+  // Get battery voltage (MAX1704X_VCELL_REG)
+  uint16_t raw_conversion_vcell;
+  //if (!this->read_byte_16(MAX17048_VCELL, &raw_conversion_vcell)) {
+  if (!this->read_byte_16(MAX1704X_VCELL_REG, &raw_conversion_vcell)) {
+    this->status_set_warning();
+    return NAN;
+  }
+  // [D][max17048:123]:     VCELL_REG: 50720
+  ESP_LOGD(TAG, "    VCELL_REG: %u", raw_conversion_vcell);
+    
+  auto signed_conversion_vcell = static_cast<int16_t>(raw_conversion_vcell);
+  float voltage = (signed_conversion_vcell)* 78.125 / 1000000;  // Floating point value read in Volts
+  //float voltage = 3.75;
+  ESP_LOGD(TAG, "    float voltage: %.3f V", voltage);
+  
+  
+  // Get battery state in percent (0-100%)
+  // Floating point value from 0 to 100.0
+  uint16_t raw_conversion_soc;
+  if (!this->read_byte_16(MAX1704X_SOC_REG, &raw_conversion_soc)) {
+    this->status_set_warning();
+    return NAN;
+  }
+  // [D][max17048:128]:     SOC_REG: 18244
+  ESP_LOGD(TAG, "    SOC_REG: %u", raw_conversion_soc);
+    
+  auto signed_conversion_soc = static_cast<int16_t>(raw_conversion_soc);
+  float percent = (signed_conversion_soc)/ 256.0;
+  
+  // [D][max17048:132]:     percent: 71.265625 %
+  ESP_LOGD(TAG, "    percent: %.1f %", percent);
+  
   this->status_clear_warning();
-  return millivolts;
+  return voltage;
 }
 
 float MAX17048Sensor::sample() { return this->parent_->request_measurement(this); }
