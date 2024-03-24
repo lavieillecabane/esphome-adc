@@ -1,0 +1,29 @@
+import esphome.codegen as cg
+import esphome.config_validation as cv
+from esphome.components import i2c
+from esphome.const import CONF_ID
+from esphome.const import (
+    DEVICE_CLASS_VOLTAGE,
+    STATE_CLASS_MEASUREMENT,
+    UNIT_VOLT,
+    CONF_TYPE,
+)
+AUTO_LOAD = ["sensor", "voltage_sampler"]
+CODEOWNERS = ["@lboue"]
+DEPENDENCIES = ["i2c"]
+MULTI_CONF = True
+
+max17048_ns = cg.esphome_ns.namespace("max17048")
+MAX17048Component = max17048_ns.class_("MAX17048Component", cg.Component, i2c.I2CDevice)
+
+CONF_CONTINUOUS_MODE = "continuous_mode"
+CONFIG_SCHEMA = (
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(MAX17048Component),
+            cv.Optional(CONF_CONTINUOUS_MODE, default=False): cv.boolean,
+        }
+    )
+    .extend(cv.COMPONENT_SCHEMA)
+    .extend(i2c.i2c_device_schema(None))
+)
