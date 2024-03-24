@@ -21,17 +21,19 @@ enum MAX17048Config {
 
 // https://github.com/hideakitai/MAX17048/blob/master/MAX17048.h
 enum class REG {
-    VCELL = 0x02,  // voltage
-    SOC = 0x04,    // percentage
-    MODE = 0x06,
-    VERSION = 0x08,
-    HIBRT = 0x0A,
-    CONFIG = 0x0C,
-    VALRT = 0x14,
-    CRATE = 0x16,
-    VRESET_ID = 0x18,
-    STATUS = 0x1A,
-    TABLE = 0x40,
+    VCELL = 0x02,       // Register that holds cell voltage
+    SOC = 0x04,         // Register that holds cell state of charge (percentage)
+    MODE = 0x06,        // Register that manages mode
+    VERSION = 0x08,     // Register that has IC version
+    HIBRT = 0x0A,       // Register that manages hibernation
+    CONFIG = 0x0C,       // Register that manages configuration
+    VALRT = 0x14,       // Register that holds voltage alert values
+    CRATE = 0x16,       // Register that holds cell charge rate
+    VRESET_ID = 0x18,   // Register that holds reset voltage setting
+    STATUS = 0x1A,      // Register that holds semi-unique chip ID
+    SVRESET = 0x18,     // Register that holds reset voltage setting
+    CHIPID_REG = 0x19,  // Register that holds semi-unique chip ID
+    TABLE = 0x40,       // Register that holds current alert/status
     CMD = 0xFE
 };
 
