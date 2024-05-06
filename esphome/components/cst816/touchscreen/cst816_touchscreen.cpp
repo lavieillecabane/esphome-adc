@@ -111,6 +111,7 @@ void CST816Touchscreen::dump_config() {
       name = "Unknown";
       break;
   }
+  ESP_LOGCONFIG(TAG, "  Chip id: %s", this->chip_id_);  
   ESP_LOGCONFIG(TAG, "  Chip type: %s", name);
 }
 
