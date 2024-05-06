@@ -16,6 +16,7 @@ void CST816Touchscreen::continue_setup_() {
   switch (this->chip_id_) {
     case CST820_CHIP_ID:
     case CST826_CHIP_ID:
+      esph_log_d(TAG, "CST826, chip ID 0x%02X", this->chip_id_);    
     case CST716_CHIP_ID:
     case CST816S_CHIP_ID:
     case CST816D_CHIP_ID:
