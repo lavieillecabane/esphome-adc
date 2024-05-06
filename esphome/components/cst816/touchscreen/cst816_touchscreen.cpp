@@ -13,6 +13,7 @@ void CST816Touchscreen::continue_setup_() {
     esph_log_e(TAG, "Failed to read chip id");
     return;
   }
+  esph_log_d(TAG, "CST826, chip ID 0x%02X", this->chip_id_); 
   switch (this->chip_id_) {
     case CST820_CHIP_ID:
     case CST826_CHIP_ID:
