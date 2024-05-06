@@ -88,6 +88,7 @@ void CST816Touchscreen::dump_config() {
   LOG_PIN("  Interrupt Pin: ", this->interrupt_pin_);
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
   const char *name;
+  esph_log_config(TAG, "  Chip id: %s", this->chip_id_);
   switch (this->chip_id_) {
     case CST820_CHIP_ID:
       name = "CST820";
@@ -111,7 +112,7 @@ void CST816Touchscreen::dump_config() {
       name = "Unknown";
       break;
   }
-  ESP_LOGCONFIG(TAG, "  Chip id: %s", this->chip_id_);  
+  ESP_LOGCONFIG(TAG, "  Chip id: %s", this->chip_id_);
   ESP_LOGCONFIG(TAG, "  Chip type: %s", name);
 }
 
