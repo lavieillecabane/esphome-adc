@@ -8,7 +8,7 @@ Fully Integrated Proximity and Ambient Light Sensor With Infrared Emitter, I2C I
 external_components:
   - source: github://pr#x
     refresh: 10s
-    components: [x]
+    components: [vcnl4020]
 
 i2c:
 
