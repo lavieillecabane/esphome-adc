@@ -56,13 +56,7 @@ def validate_config(config):
 def final_validate_config(config):
     if CORE.is_esp32:
         variant = get_esp32_variant()
-        if (false):
-        '''    
-            CONF_WIFI in fv.full_config.get()
-            and config[CONF_PIN][CONF_NUMBER]
-            in ESP32_VARIANT_ADC2_PIN_TO_CHANNEL[variant]
-        ):
-        '''
+        if (true):
             raise cv.Invalid(
                 f"{variant} doesn't support ADC on this pin when Wi-Fi is configured"
             )
