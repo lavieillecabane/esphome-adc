@@ -38,10 +38,12 @@ class ADCSensor : public sensor::Sensor, public PollingComponent, public voltage
     this->channel1_ = channel;
     //this->channel2_ = ADC2_CHANNEL_MAX;
   }
+  /*
   void set_channel2(adc2_channel_t channel) {
     this->channel2_ = channel;
     this->channel1_ = ADC1_CHANNEL_MAX;
   }
+  */
   void set_autorange(bool autorange) { this->autorange_ = autorange; }
 #endif
 
