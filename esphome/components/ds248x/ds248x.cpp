@@ -74,7 +74,10 @@ void DS248xComponent::setup() {
     this->sleep_pin_->pin_mode(esphome::gpio::FLAG_OUTPUT);
   }
 
-  if (this->ds248x_type_ == DS248xType::DS2482_100) {
+  // DS2482-100 or DS2484
+  if (this->ds248x_type_ == DS248xType::DS2482_100 ||
+      this->ds248x_type_ == DS248xType::DS2484)
+  {
     // Reset
     this->reset_hub_();
     address = 0;
@@ -122,8 +125,10 @@ void DS248xComponent::setup() {
     this->found_channel_sensors_.push_back(channel);
   }
 
-  // DS2482_100
-  if (this->ds248x_type_ == DS248xType::DS2482_100) {
+  // DS2482-100 or DS2484
+  if (this->ds248x_type_ == DS248xType::DS2482_100 ||
+      this->ds248x_type_ == DS248xType::DS2482_100)
+  {
     for (auto *sensor : this->sensors_) {
       if (sensor->get_index().has_value()) {
         if (*sensor->get_index() >= this->found_sensors_.size()) {
@@ -198,8 +203,10 @@ void DS248xComponent::dump_config() {
   }
   LOG_UPDATE_INTERVAL(this);
 
-  // DS2482-100
-  if (this->ds248x_type_ == DS248xType::DS2482_100) {
+  // DS2482-100 or DS2484
+  if (this->ds248x_type_ == DS248xType::DS2482_100 ||
+     this->ds248x_type_ == DS248xType::DS2484)
+  {
     for (auto *sensor : this->sensors_) {
       LOG_SENSOR("  ", "Device", sensor);
       if (sensor->get_index().has_value()) {
@@ -233,30 +240,15 @@ void DS248xComponent::dump_config() {
       }
     }
   }
-
-  // DS2484 Single-Channel 1-Wire Master
-  if (this->ds248x_type_ == DS248xType::DS2484) {
-    for (auto *sensor : this->sensors_) {
-      LOG_SENSOR("  ", "Device", sensor);
-      if (sensor->get_index().has_value()) {
-        ESP_LOGCONFIG(TAG, "    Index %u", *sensor->get_index());
-        if (*sensor->get_index() >= this->found_sensors_.size()) {
-          ESP_LOGE(TAG, "Couldn't find sensor by index - not connected. Proceeding without it.");
-          continue;
-        }
-      }
-      ESP_LOGCONFIG(TAG, "    Address: %s", sensor->get_address_name().c_str());
-      ESP_LOGCONFIG(TAG, "    Channel: %u", sensor->get_channel());
-      ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
-    }
-  }
 }
 
 void DS248xComponent::register_sensor(DS248xTemperatureSensor *sensor) {
   this->sensors_.push_back(sensor);
 
   // DS2482-100
-  if (this->ds248x_type_ == DS248xType::DS2482_100) {
+  if (this->ds248x_type_ == DS248xType::DS2482_100 ||
+      this->ds248x_type_ == DS248xType::DS2484)
+  {
     this->channel_sensors_[0].push_back(sensor);
   }
 
@@ -264,11 +256,6 @@ void DS248xComponent::register_sensor(DS248xTemperatureSensor *sensor) {
   if (this->ds248x_type_ == DS248xType::DS2482_800) {
     this->channel_sensors_[sensor->get_channel()].push_back(sensor);
   }
-  
-  // DS2484 Single-Channel 1-Wire Master
-  if (this->ds248x_type_ == DS248xType::DS2484) {
-    this->channel_sensors_[0].push_back(sensor);
-  }  
 }
 
 void DS248xComponent::update() {
