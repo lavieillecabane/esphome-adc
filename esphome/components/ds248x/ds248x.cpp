@@ -180,6 +180,10 @@ void DS248xComponent::dump_config() {
       ESP_LOGCONFIG(TAG, "  Type: DS2482-800");
       break;
   }
+    case DS248xType::DS2484:
+      ESP_LOGCONFIG(TAG, "  Type: DS2484");
+      break;
+  }
 
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Communication with DS248x failed!");
@@ -211,7 +215,7 @@ void DS248xComponent::dump_config() {
       ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
     }
   }
-
+  
   // DS2482-800
   if (this->ds248x_type_ == DS248xType::DS2482_800) {
     for (channel = 0; channel < NBR_CHANNELS; channel++) {
@@ -230,6 +234,23 @@ void DS248xComponent::dump_config() {
       }
     }
   }
+
+  // DS2484 Single-Channel 1-Wire Master
+  if (this->ds248x_type_ == DS248xType::DS2484) {
+    for (auto *sensor : this->sensors_) {
+      LOG_SENSOR("  ", "Device", sensor);
+      if (sensor->get_index().has_value()) {
+        ESP_LOGCONFIG(TAG, "    Index %u", *sensor->get_index());
+        if (*sensor->get_index() >= this->found_sensors_.size()) {
+          ESP_LOGE(TAG, "Couldn't find sensor by index - not connected. Proceeding without it.");
+          continue;
+        }
+      }
+      ESP_LOGCONFIG(TAG, "    Address: %s", sensor->get_address_name().c_str());
+      ESP_LOGCONFIG(TAG, "    Channel: %u", sensor->get_channel());
+      ESP_LOGCONFIG(TAG, "    Resolution: %u", sensor->get_resolution());
+    }
+  }
 }
 
 void DS248xComponent::register_sensor(DS248xTemperatureSensor *sensor) {
@@ -244,6 +265,11 @@ void DS248xComponent::register_sensor(DS248xTemperatureSensor *sensor) {
   if (this->ds248x_type_ == DS248xType::DS2482_800) {
     this->channel_sensors_[sensor->get_channel()].push_back(sensor);
   }
+  
+  // DS2484 Single-Channel 1-Wire Master
+  if (this->ds248x_type_ == DS248xType::DS2484) {
+    this->channel_sensors_[0].push_back(sensor);
+  }  
 }
 
 void DS248xComponent::update() {
