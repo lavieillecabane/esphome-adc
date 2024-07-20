@@ -179,7 +179,6 @@ void DS248xComponent::dump_config() {
     case DS248xType::DS2482_800:
       ESP_LOGCONFIG(TAG, "  Type: DS2482-800");
       break;
-  }
     case DS248xType::DS2484:
       ESP_LOGCONFIG(TAG, "  Type: DS2484");
       break;
