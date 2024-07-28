@@ -92,7 +92,7 @@ void CH422GComponent::pin_mode(uint8_t pin, gpio::Flags flags) {
     // Set mode mask bit
     this->config_mask_ |= 1 << pin;
   }
-  this->write_register_(CONFIG_REG, ~this->config_mask_);
+  //this->write_register_(CONFIG_REG, ~this->config_mask_);
 }
 
 bool CH422GComponent::read_inputs_() {
