@@ -25,7 +25,7 @@ void CH422GComponent::setup() {
   this->reg_width_ = (this->pin_count_ + 7) / 8;
   // Test to see if device exists
   if (!this->read_inputs_()) {
-    ESP_LOGE(TAG, "CH22G not detected at 0x%02X", this->address_);
+    ESP_LOGE(TAG, "CH422G not detected at 0x%02X", this->address_);
     this->mark_failed();
     return;
   }
