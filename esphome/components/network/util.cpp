@@ -26,7 +26,7 @@ bool is_connected() {
 #ifdef USE_HOST
   return true;  // Assume its connected
 #endif
-  # Workaround for OpenThread
+  /* Workaround for OpenThread */
   return true;
   //return false;
 }
