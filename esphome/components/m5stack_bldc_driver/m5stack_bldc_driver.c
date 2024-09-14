@@ -7,7 +7,7 @@ namespace m5stack_bldc_driver {
 
 static const char *const TAG = "m5stack_bldc_driver";
 
-void M5StackBLDCDriver ::setup() {
+void M5StackBLDCDriverComponent ::setup() {
   ESP_LOGCONFIG(TAG, "Setting up m5stack_bldc_driver...");
   i2c::ErrorCode err;
 
@@ -26,13 +26,13 @@ void M5StackBLDCDriver ::setup() {
   };
 }
 
-void M5StackBLDCDriver ::dump_config() {
+void M5StackBLDCDriverComponent ::dump_config() {
   ESP_LOGCONFIG(TAG, "m5stack_bldc_driver:");
   LOG_I2C_DEVICE(this);
   ESP_LOGCONFIG(TAG, "  Firmware version: %d ", this->fw_version_);
 }
 
-float M5StackBLDCDriver ::read_knob_pos(uint8_t channel, AnalogBits bits) {
+float M5StackBLDCDriverComponent ::read_knob_pos(uint8_t channel, AnalogBits bits) {
   int32_t raw_pos = this->read_knob_pos_raw(channel, bits);
   if (raw_pos == -1) {
     return NAN;
@@ -40,7 +40,7 @@ float M5StackBLDCDriver ::read_knob_pos(uint8_t channel, AnalogBits bits) {
   return (float) raw_pos / ((1 << bits) - 1);
 }
 
-int32_t M5StackBLDCDriver ::read_knob_pos_raw(uint8_t channel, AnalogBits bits) {
+int32_t M5StackBLDCDriverComponent ::read_knob_pos_raw(uint8_t channel, AnalogBits bits) {
   uint16_t knob_pos = 0;
   i2c::ErrorCode err;
   if (bits == BITS_8) {
@@ -58,7 +58,7 @@ int32_t M5StackBLDCDriver ::read_knob_pos_raw(uint8_t channel, AnalogBits bits) 
   }
 }
 
-int8_t M5StackBLDCDriver ::read_switch() {
+int8_t M5StackBLDCDriverComponent ::read_switch() {
   uint8_t out;
   i2c::ErrorCode err = this->read_register(m5stack_bldc_driver_REGISTER_DIGITAL_INPUT, (uint8_t *) &out, 1);
   if (err == i2c::NO_ERROR) {
@@ -68,7 +68,7 @@ int8_t M5StackBLDCDriver ::read_switch() {
   }
 }
 
-float M5StackBLDCDriver ::get_setup_priority() const { return setup_priority::DATA; }
+float M5StackBLDCDriverComponent ::get_setup_priority() const { return setup_priority::DATA; }
 
 }  // namespace m5stack_bldc_driver
 }  // namespace esphome
