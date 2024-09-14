@@ -8,16 +8,16 @@ DEPENDENCIES = ["i2c"]
 CODEOWNERS = ["@lboue"]
 MULTI_CONF = True
 
-CONF_m5stack_bdlc_driver_ID = "m5stack_bdlc_driver_id"
+CONF_m5stack_bldc_driver_ID = "m5stack_bldc_driver_id"
 
-m5stack_bdlc_driver_ns = cg.esphome_ns.namespace("m5stack_bdlc_driver")
-M5StackBDLCDriver = m5stack_bdlc_driver_ns.class_(
+m5stack_bldc_driver_ns = cg.esphome_ns.namespace("m5stack_bldc_driver")
+M5StackBDLCDriver = m5stack_bldc_driver_ns.class_(
     "M5StackBDLCDriver",
     i2c.I2CDevice,
     cg.Component,
 )
 
-AnalogBits = m5stack_bdlc_driver_ns.enum("AnalogBits")
+AnalogBits = m5stack_bldc_driver_ns.enum("AnalogBits")
 
 
 CONFIG_SCHEMA = cv.Schema(
