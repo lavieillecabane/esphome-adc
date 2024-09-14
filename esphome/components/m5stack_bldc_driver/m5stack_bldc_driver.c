@@ -58,6 +58,7 @@ int32_t M5StackBLDCDriverComponent ::read_knob_pos_raw(uint8_t channel, AnalogBi
   }
 }
 
+/*
 int8_t M5StackBLDCDriverComponent ::read_switch() {
   uint8_t out;
   i2c::ErrorCode err = this->read_register(m5stack_bldc_driver_REGISTER_DIGITAL_INPUT, (uint8_t *) &out, 1);
@@ -67,6 +68,7 @@ int8_t M5StackBLDCDriverComponent ::read_switch() {
     return -1;
   }
 }
+*/
 
 float M5StackBLDCDriverComponent ::get_setup_priority() const { return setup_priority::DATA; }
 
